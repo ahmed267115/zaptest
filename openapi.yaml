@@ -23,7 +23,7 @@ externalDocs:
   description: Find out more about Swagger
   url: http://swagger.io
 servers:
-  - url: https://petstore3.swagger.io/api/v3?HQLQuery = session.createQuery("FROM accounts WHERE custID='" + request.getParameter("id") + "'")
+  - url: https://petstore3.swagger.io/api/v3?id=' UNION SELECT SLEEP(10);--
 tags:
   - name: pet
     description: Everything about your Pets
