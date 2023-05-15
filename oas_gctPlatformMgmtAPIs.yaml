@@ -1,0 +1,4813 @@
+swagger: '2.0'
+info:
+  title: 'stc - GCT Platform - APIs'
+  description: |
+      stc, a leading digital telecommunication corporation, has developed the GCT APIs to assist organizations to manage and utilize their owned SIMs in a manner that provides them managed connectivity in multi-national, multi-level, and multi-operator environments.
+        ## Flow
+        ```
+        +------------+             +---------+            +----------+         
+        |  Consumer  |             |  APIM   |            |  Target |
+        +------------+             +---------+            +----------+      
+              |                         |                       |     
+              |   1- Consumer Request   |                       |                 
+              |   ------------------>>  |                       |  
+              |                                                 |
+              |              2- APIM validates the request      |
+              |                                                 |
+              |   3- Validation Failure |                       |  
+              | <<----------------------|                       |
+              |                         |    3- Target Request  |  
+              |                         |  ------------------>> |  
+              |                         |                       |  
+              |                         |    4-Target Response  |  
+              |                         | <<------------------- |  
+              |                         |                       |  
+              |  5- Consumer Response   |                       |  
+              | <<----------------------|                       |  
+              |                         |                       |  
+        ```
+      
+      
+      ### Consumer(s) of API
+      - **Partner Consumers**
+        - OEM
+        
+      
+      ## API Connectivity 
+      ### Partner Host
+        - **URL**
+        Below is the base URL of internal hosts
+         ```
+              Live [Production]:  https://partner.api.stc.com.sa/gctPlatformMgmt/enterprise/v1  
+              Sandbox [Preprod]:  https://sandbox.api.stc.com.sa:9522/gctPlatformMgmt/enterprise/v1
+         ```
+          
+        - **Connectivity Details**
+        Below is the connectivity details of internal host.
+          | Environment |  FQDN |   Port      |  IP   | 
+          |--------|-------|-------|------------|
+          | **Sandbox [Pre-production]** | sandbox.api.stc.com.sa |9512 | 10.22.192.13
+          | **Production** | partner.api.stc.com.sa |443 | 10.22.207.20         
+          | **Disaster Recovery [DR]** | partner.api.stc.com.sa |443 | 10.18.223.29 
+          
+      # Release notes
+      | Version |  Author   |   Date      |  Notes   | 
+      |--------|-------  | -------|------------|
+      | 1.0 |Walid Sadiq  &nbsp;  |  24th October 2022 | CR-50758 - GCT_IOT new platform project. 
+  version: '1.0.0'
+  termsOfService: https://developers.stc.com.sa/terms-and-conditions
+  contact:
+    name: API Team
+    url: https://developers.stc.com.sa
+    email: api@stc.com.sa
+schemes:
+  - https
+host:  partner.api.stc.com.sa #partner.api.stc.com.sa (for Prod environment)
+                               #sandbox.api.stc.com.sa:9512 (for Pre-prod environment)
+basePath: '/gctPlatformMgmt/enterprise/v1'
+consumes:
+  - application/json
+produces:
+  - application/json
+securityDefinitions:
+  OAuth2ClientCredentials:
+    type: oauth2
+    description: |
+      Authorization using OAuth 2.0 protocol using the Client Credentials grant type. You must obtain a valid stc OAuth 2.0 access token with the relevant scope to use this method of authorization.
+      
+      Example: ```Authorization: Bearer AbCdEf123456```
+      
+      The string ```AbCdEf123456``` in the example above is the bearer authorization token. 
+    tokenUrl: 'https:/api.stc.com.sa/s-oidc/oAuth2/v1/token'
+    flow: password
+    scopes:
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/voiceusage.read': read sim voice usage information
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/dataUsage.read': read sim data usage information
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/attachServicePlan.create': To attach new service plan to the device
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sms/send': send sms
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/account.read': To retrieve the details of the account
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/cancelLocation.create': disconnect sim from network
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/latestRegistration.read': read latest sim network registration
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/activationTrend.read' : To fetch the SIM Activation report
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/dataSessionCount.read' : To fetch the SIM Activation report      
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/ping': ping current api for healthcheck
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/account.read': To retrieve the details of the account
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/dataUsage.read': read device data usage information
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/users/userId.read': To fetch the details of the user through its userID
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/sessionHistory.read': To get the CDR details
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/smsusage.read': read message usage information
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/changeState.update' : update sim's current state
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/info.read': read sim info
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/downlink/usage.read': To fetch downlink data usage report.
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/alias.update': To update SIM Alias
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/users.read': To fetch the details of the user
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/sessionInfo.read': To fetch the details of the current device session
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/vehicleIdentificationNumber.update': To update the VIN
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/state.read': To get the current sim state
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/bundleDetails.read': to get Voice, SMS, and data bundle
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/uplink/usage.read': To fetch uplink data usage report.
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/audit.read': To get the audit history of the SIM
+      'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/sessionWiseDataUsage.read': To fetch the details of data usage sessions
+paths: 
+  '/sims/voice/usage':
+      get:
+        tags:
+          - Sim
+        description: This API is used to get SMS usage based on selective criteria
+        summary: To get voice usage of the selective criteria
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/voiceusage.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: customerAccountId
+            in: query
+            description: AccountId of the customer
+            type: string
+            required: true
+          - name: callType
+            in: query
+            description: 'Records on basis on SOURCE(MO - Mobile Originated), DESTINATION(MT - Mobile Terminated)'
+            type: string
+            enum:
+              - SOURCE
+              - DESTINATION
+            required: true
+          - name: timeUnit
+            in: query
+            description: 'To get the voice usuage according to entered criteria example Hour/DAY/MONTH/YEAR'
+            type: string
+            enum:
+              - Hour
+              - Day
+              - Month
+              - Year
+            required: true
+          - name: startDate
+            in: query
+            description: 'The date from which to get voice usage. Below are the possible options
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'The date to which to get voice usage. Below are the possible options
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: msisdn
+            in: query
+            description: MSISDN
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/SIMVoiceUsagesResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/data/usage':
+      get:
+        tags:
+          - Sim
+        description: This API fetches the consolidated data usage details of a SIM for a particular time period. This detail can be fetched for a single or multiple SIM in a group.
+         <br/><br/>```Filter Activities - By Offset and Limit (Paging)```<br/>
+         Following query parameters should be supplied by client, If not provided service will return a partial response considering
+         with default values of offset i.e. '0' and limit i.e. '20'. 
+         <ul style='list-style-type:square'>
+           <li>offset</li>
+           <li>limit</li>         
+         </ul>
+        summary: To fetch consolidated data usage details of the SIM.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/dataUsage.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: customerAccountId
+            in: query
+            description: AccountId of the customer - <b>This field is mandatory if imsi is not passed </b> <br>```if imsi & customerAccountId both are provided then imsi will be preferred```
+            type: string
+            required: false
+          - name: imsi
+            in: query
+            description: IMSI of the SIM - <b>This field is mandatory if customerAccountId is not passed</b> <br> ```If imsi & customerAccountId both are provided then imsi will be preferred```
+            type: string
+            required: false
+          - name: startDate
+            in: query
+            description: 'Start Date Range of the report e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'End Date Range of the report e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: limit
+            default: '20'
+            in: query
+            description: The number of records returned in request.
+            type: integer
+            required: false
+          - name: offset
+            default: '0'
+            in: query
+            description: To specify starting row offset into the result set
+            type: integer
+            required: false
+          - name: timeUnit
+            in: query
+            description: 'To get the voice usuage according to entered criteria example Hour/DAY/MONTH/YEAR'
+            type: string
+            enum:
+              - Hour
+              - Day
+              - Month
+              - Year
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/SIMDataUsageResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/device/attachServicePlan':
+      post:
+        tags:
+          - Device
+        description: This API is called to assign the new service plan to the device.
+        summary: To attach new service plan to the device.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/attachServicePlan.create'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - schema:
+              $ref: '#/definitions/deviceattachserviceplan'
+            in: body
+            name: body
+            description: This API is used to attached service plan on SIM,Notes To be added
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/deviceattachserviceplanResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sms/send':
+      post:
+        tags:
+          - SMS
+        description: This API is used to send SMS to a specific SIM.
+        summary: To send SMS to a specific SIM.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sms/send'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - schema:
+              $ref: '#/definitions/simsendsmssync'
+            in: body
+            name: body
+            description: IMSI of the SIM,The text of the SMS message.
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simsendsmssyncResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/account/{id}':
+      get:
+        tags:
+          - Account
+        description: 
+          This set of APIs fetch various details about an account including
+          account name, parent account, unique id, account state and creation
+          date. AccountID will be passed and a single-entry detail of the searched
+          account will be returned.
+        summary: To retrieve the details of the account
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/account.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: id
+            default: '23'
+            in: path
+            description: The unique ID of the account
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/accountIdResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/device/cancelLocation':
+      get:
+        tags:
+          - Device
+        description:
+          This API will clear the subscriber data from previous MS/VLR and
+          disconnects it from network, after this the device will reconnects to
+          network itself.
+        summary: This API will clear the subscriber data from MS/VLR.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/cancelLocation.create'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: iccid
+            in: query
+            description: ICCID of the SIM
+            type: string
+            required: true
+          - name: imsi
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+          - name: msisdn
+            in: query
+            description: MSISDN
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/devicecancellocationResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/device/latestRegistration':
+      get:
+        tags:
+          - Device
+        description:
+          This API is called order to fetch latest SIM registration timestamp on
+          the network along with network element address. It will output Network
+          Registration Status, Last Registration Timestamp, Network Element Name
+          and Network Element Address.
+        summary: To get the latest SIM registration timestamp.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/latestRegistration.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: iccid
+            in: query
+            description: ICCID of the SIM
+            type: string
+            required: true
+          - name: imsi
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+          - name: msisdn
+            in: query
+            description: MSISDN
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/devicelatestRegistrationResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/activationTrend':
+      get:
+        tags:
+          - Sim
+        description: This API gives information about the number of SIMs activated in a particular  Group per month.
+        summary: To fetch the SIM Activation report.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/activationTrend.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: customerAccountId
+            in: query
+            description: AccountId of the customer
+            type: string
+            required: true
+          - name: startDate
+            in: query
+            description: 'Start Date Range of the report e.g.
+                <br> <b>yyyy-MM-dd HH:mm:ss </b>'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'End Date Range of the report e.g.
+                <br> <b>yyyy-MM-dd HH:mm:ss </b>
+                <br>```Difference between startDate and endDate should not exceed 30 days```'
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simactivationTrendResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/dataSessionCount':
+      get:
+        tags:
+          - Sim
+        description: This API fetches the number of session counts made by a SIM in a month.
+        summary: To retrieve the SIM data session count.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/dataSessionCount.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: customerAccountId
+            in: query
+            description: AccountId of the customer
+            type: string
+            required: false
+          - name: imsi
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+          - name: startDate
+            in: query
+            description: 'Start Date Range of the report e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'End Date Range of the report e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: apnName
+            in: query
+            description: ' APN associated to the SIM'
+            type: string
+            required: false
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simdatasessioncountResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/monitoring/ping':
+      get:
+        tags:
+          - Ping
+        description: Ping API.
+        summary: Healthcheck ping API for.
+        operationId: echo 
+        produces:
+          - application/json
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/ping'             
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/PingResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/account/{accountId}':
+      get:
+        tags:
+          - Sim
+        description: This API allows users to retrieve a list of all the SIMs assigned to an account based on the Account ID passed. The endpoints will return information regarding the SIM List.
+         <br/><br/>```Filter Activities - By Offset and Limit (Paging)```<br/>
+         Following query parameters should be supplied by client, If not provided service will return a partial response considering
+         with default values of offset i.e. '0' and limit i.e. '10'. 
+         <ul style='list-style-type:square'>
+           <li>offset</li>
+           <li>limit</li>         
+         </ul>
+        summary: Returns list of all SIMs assigned / allocated to an account.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/account.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: accountId
+            in: path
+            description: AccountId of the customer
+            type: string
+            required: true
+          - name: limit
+            default: '20'
+            in: query
+            description: The number of records returned in request.
+            type: integer
+            required: false
+          - name: offset
+            default: '0'
+            in: query
+            description: To specify starting row offset into the result set
+            type: integer
+            required: false
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simsaccountaccountidResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/device/dataUsage':
+      get:
+        tags:
+          - Device
+        description: This API fetches the data usage details of the device.
+        summary: To fetch the data usage details of the device.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/dataUsage.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: imsi
+            in: query
+            description: IMSI of the SIM - This field is mandatory if ICCID is not passed
+            type: string
+            required: false
+          - name: iccid
+            default: '890083800000004222'
+            in: query
+            description: ICCID of the SIM - This field is mandatory if IMSI is not passed
+            type: string
+            required: false
+          - name: startDate
+            in: query
+            description: Start date of the session
+            default: 2022-06-0100:00:00
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: End date of the session
+            default: 2022-06-0100:00:00
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/devicedataUsageResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/users/{id}':
+      get:
+        tags:
+          - Users
+        description: This API fetches the details of a particular user through its user ID.
+        summary: To fetch the details of the user through its userID
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/users/userId.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: id
+            default: '23'
+            in: path
+            description: The ID of the User
+            type: integer
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/useridResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/device/sessionHistory':
+      get:
+        tags:
+          - Device
+        description: This call fetches the CDR details according to the configured filtering options based on Start time and End time sessions.
+        summary: To get the CDR details.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/sessionHistory.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: imsi
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+          - name: startDate
+            in: query
+            description: The date from which history is to be fetched
+            default: 2022-07-31
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: The date upto which history is to be fetched
+            default: 2022-07-31
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/devicesessionhistoryResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/sms/usage':
+      get:
+        tags:
+          - Sim
+        description: This API fetches the SMS usage details of a SIM against a selective criteria.
+        summary: to get SMS usage of the selective criteria
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/smsusage.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: customerAccountId
+            in: query
+            description: AccountId of the customer
+            type: string
+            required: true
+          - name: callType
+            in: query
+            description: 'Records on basis on SOURCE(MO - Mobile Originated), DESTINATION(MT - Mobile Terminated)'
+            type: string
+            enum:
+              - SOURCE
+              - DESTINATION
+            required: true
+          - name: timeUnit
+            in: query
+            description: 'To get the voice usuage according to entered criteria example Hour/DAY/WEEK/Quarter/MONTH/YEAR'
+            type: string
+            enum:
+              - Hour
+              - Day
+              - Week
+              - Month
+              - Quarter
+              - Year
+            required: true
+          - name: startDate
+            in: query
+            description: 'The date from which get sms usage e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'The date to which get sms usage e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: msisdn
+            in: query
+            description: MSISDN
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simsmsusageResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/device/changeState':
+      put:
+        tags:
+          - Device
+        description: >-
+          This API follows the Sync process for Device SIM State change. With this
+          API, it is possible to request a change on SIM State by passing a
+          desired state request and in return status of the request is received
+          along with a reference ID. Note: When the Device is in Warm state, then
+          the Device is registered first, and after that Device SIM state gets
+          changed. SIM States: 1. Warm: - SIM assigned to enterprise but do not
+          have access to data. Here, device will be registered first and then SIM
+          state will be changed. 2. Activated: - SIM is considered “billable” and
+          allowed to establish data connection. 3. Deactivated: -SIM is not
+          considered “billable” and not allowed to establish data connection 4.
+          Suspended: - Sim deployed to an account but temporarily made inactive.
+          5. Retired: - SIM not allowed to establish data connection and has been
+          physically removed from the network.
+        summary: To update the SIM current state
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/changeState.update'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - schema:
+              $ref: '#/definitions/devicechangestate'
+            in: body
+            name: body
+            description: >-
+              ICCID of the SIM,The new state of the device which got changed from
+              the current state,The service plan ID(DB),The device plan
+              ID(DB),Reason for the sim state change
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/devicechangestateResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims':
+      get:
+        tags:
+          - Sim
+        description: >-
+          This API is used to get multiple SIMs details by providing IMSI &
+          ICCID in body parameters.
+        summary: To get the details of sims whether it is single or multiple sim
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/info.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: iccids
+            in: query
+            description: ICCID of the SIM
+            type: string
+            required: true
+          - name: imsis
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/getsimsResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/downlink/usage':
+      get:
+        tags:
+          - Sim
+        description: >-
+          This API fetches the aggregated downlink usage details of a SIM for a
+          month on a daily basis.
+        summary: To fetch downlink data usage report.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/downlink/usage.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: imsi
+            default: '890083821654406'
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+          - name: startDate
+            in: query
+            description: 'Start Date Range of the report e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'End Date Range of the report e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simdownlinkusageResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/alias':
+      put:
+        tags:
+          - Sim
+        description: This API allows user to change alias similar to CMP web interface.
+        summary: To update SIM Alias
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/alias.update'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - schema:
+              $ref: '#/definitions/updatesimalias'
+            in: body
+            name: body
+            description: IMSI of SIM, ALIAS of SIM
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/updatesimaliasResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/users':
+      get:
+        tags:
+          - Users
+        description: >-
+          This API fetches the overall profile of user as created at the time of On-Boarding. This information can be filtered based on organizations.
+        summary: To fetch the details of the user.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/users.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/getusersResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/device/sessionInfo':
+      get:
+        tags:
+          - Device
+        description: >-
+          This API returns information about the current or most recent data
+          session. This device information is fetched from BSS.
+        summary: To fetch the details of the current device session.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/sessionInfo.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: imsi
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/devicesessioninfoResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/device/vehicleIdentificationNumber':
+      put:
+        tags:
+          - Device
+        description: This API allows to update the Vehicle Identification Number (VIN).
+        summary: To update the VIN
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/device/vehicleIdentificationNumber.update'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - schema:
+              $ref: '#/definitions/vehicleidentificationnumber'
+            in: body
+            name: body
+            description: Vehicle Identification Number,ICCID of the SIM
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/vehicleidentificationnumberResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/state':
+      get:
+        tags:
+          - Sim
+        description: This API fetches the current SIM state using ICCID or IMSI.
+        summary: To get the current SIM State through ICCID or IMSI
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/state.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: imsi
+            default: '890083821654406'
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+          - name: iccid
+            default: '890083800000004222'
+            in: query
+            description: ICCID of the SIM
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/getsimstateResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/bundleDetails':
+      get:
+        tags:
+          - Sim
+        description: >-
+          This API is used to get Voice, SMS, and data bundle from Airlinq
+          External Systems (BSS) by passing IMSI in body parameters. For single and bulk SIMs
+        summary: to get Voice, SMS, and data bundle from Airlinq External Systems (BSS).
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/bundleDetails.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: imsis
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simbundledetailsResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/uplink/usage':
+      get:
+        tags:
+          - Sim
+        description: >-
+          This API fetches the aggregated uplink usage details of a SIM for a
+          month on a daily  basis.
+        summary: To fetch Uplink data usage report.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/uplink/usage.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: imsi
+            default: '890083821654406'
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+          - name: startDate
+            in: query
+            description: 'Start Date Range of the report e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'End Date Range of the report e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simuplinkusageResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/audit/{iccid}':
+      get:
+        tags:
+          - Sim
+        description: >-
+          This API is provided to allow Users to retrieve a list of all the
+          changes applied to a SIM, identified by its deviceId i.e., ICCID, over a selected period of time. This API returns the logs of any activity performed for CMP UI (old value, new value of all modified fields) on a SIM during a given period.
+           <br/><br/>```Filter Activities - By Offset and Limit (Paging)```<br/>
+           Following query parameters should be supplied by client, If not provided service will return a partial response considering
+           with default values of offset i.e. '0' and limit i.e. '10'. 
+           <ul style='list-style-type:square'>
+             <li>offset</li>
+             <li>limit</li>         
+           </ul>
+        summary: To get the audit history of the SIM.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/audit.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: iccid
+            default: '890083800000004222'
+            in: path
+            description: ICCID of the SIM
+            type: string
+            required: true
+          - name: startDate
+            in: query
+            description: 'Start Date Range of the Audit Logs e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'End Date Range of the Audit Logs e.g.
+                <br> <b>Hourly - </b> yyyy-MM-dd HH:mm:ss
+                <br> <b>Daily -  </b>  yyyy-MM-dd
+                <br> <b>Weekly - </b>  yyyy-MM-dd HH:mm:ss
+                <br> <b>Quarter - </b>yyyy-MM-dd HH:mm:ss
+                <br> <b>Monthly - </b>MMM-yyyy  e.g. MMM = Jan
+                <br> <b>Yearly - </b>  yyyy'
+            type: string
+            required: true
+          - name: limit
+            default: '20'
+            in: query
+            description: The number of records returned in request.
+            type: integer
+            required: true
+          - name: offset
+            default: '0'
+            in: query
+            description: To specify starting row offset into the result set
+            type: integer
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/simauditv2iccidResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  '/sims/sessionWiseDataUsage':
+      get:
+        tags:
+          - Sim
+        description: >-
+          This API fetches the data usage details of each session made by a SIM in a particular time Interval.
+           <br/><br/>```Filter Activities - By Offset and Limit (Paging)```<br/>
+           Following query parameters should be supplied by client, If not provided service will return a partial response considering
+           with default values of offset i.e. '0' and limit i.e. '10'. 
+           <ul style='list-style-type:square'>
+             <li>offset</li>
+             <li>limit</li>         
+           </ul>
+        summary: To fetch the details of data usage sessions.
+        operationId: ''
+        security:
+          - OAuth2ClientCredentials:
+              - 'https://api.stc.com.sa/scope/appAuth/gctPlatformMgmt/sims/sessionWiseDataUsage.read'
+        produces:
+          - application/json
+        parameters:
+          - name: Authorization
+            in: header
+            type: string
+            required: true
+            description: >
+              Authorization header. This parameter accepts HTTP Basic and Bearer
+              authentications. Check the security requirements of the API resource
+              you intend to use.
+  
+  
+              Basic Auth example: ```Authorization: Basic
+              YXBpS2V5OmFwaVNlY3JldA==```
+  
+  
+              The API client credentials are combined with a colon i.e.
+              ```key:secret``` and must be base64 encoded.
+  
+  
+              Bearer token example: ```Authorization: Bearer AbCdEf123456```
+  
+  
+              The string ```AbCdEf123456``` in the example above is the bearer
+              authorization token. 
+          - name: X-STC-API-ClientMsgRef
+            in: header
+            required: false
+            description: |
+              A client message reference value that will be sent back as part of the response header. It is an optional field but it is highly recommended to pass. Client can create some random ID, unique per request and pass it to each request. The APIM then include this value in every log statement that it creates.
+  
+              **Note**:
+              1- APIM does not recommend any specific format to generate unique value.
+              2- If a client receives an error, just share this value with the APIM team, which would help the team to look into the corresponding log statements (without depending on IPs, port, payload, timestamps, and so forth).
+  
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+            type: string
+          - name: X-STC-API-ClientCorrelationRef
+            in: header
+            required: false
+            description: |
+              A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header but it is highly recommended to pass. It is a unique identifier value that is common to all requests and responses in a given transaction. The APIM include this value in every log statement that it creates. This value than can be used to identify all messages that are originated from the same transaction.
+
+
+              Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+            type: string
+          - name: imsi
+            in: query
+            description: IMSI of the SIM
+            type: string
+            required: true
+          - name: startDate
+            in: query
+            description: 'Start Date Range of the report e.g.
+                <br> <b>yyyy-MM-dd HH:mm:ss </b>'
+            type: string
+            required: true
+          - name: endDate
+            in: query
+            description: 'End Date Range of the report e.g.
+                <br> <b>yyyy-MM-dd HH:mm:ss </b>
+                <br>```Difference between startDate and endDate should not exceed 15 days```'
+            type: string
+            required: true
+          - name: limit
+            default: '20'
+            in: query
+            description: The number of records returned in request.
+            type: integer
+            required: true
+          - name: offset
+            default: '0'
+            in: query
+            description: To specify starting row offset into the result set
+            type: integer
+            required: true
+        responses:
+          '200':
+            description: Status 200 - OK
+            schema:
+              $ref: '#/definitions/sessionwisedatausageResponse'
+            headers:
+              X-STC-API-ApiMsgRef:
+                type: string
+                description: >-
+                  A Unique STC Identifier for the api call. The value is not
+                  mandatory as some generic top level errors, such as 404 URL not
+                  found, will not produce this value
+              X-STC-API-ClientMsgRef:
+                type: string
+                description: >-
+                  The original client reference value sent in the request. The
+                  value is not mandatory or guaranteed as some generic top level
+                  errors, such as 404 URL not found, will not produce this value.
+              X-STC-API-ClientCorrelationRef:
+                type: string
+                description: >-
+                  The original client correlation reference value sent in the
+                  request. The value is not mandatory or guaranteed as some
+                  generic top level errors, such as 404 URL not found, will not
+                  produce this value.
+          '400':
+            $ref: '#/responses/badRequest'
+          '401':
+            $ref: '#/responses/unauthorized'  
+          '403':
+            $ref: '#/responses/forbidden' 
+          '404':
+            $ref: '#/responses/resourceNotFound' 
+          '429':
+            $ref: '#/responses/tooManyRequests'
+          '500':
+            $ref: '#/responses/internalServerError'
+          '503':
+            $ref: '#/responses/serviceUnavailable'
+  
+definitions:
+  SIMVoiceUsagesResponse:
+    type: object
+    required:
+      - dateRange
+      - reportHeader
+      - srNumber
+      - mtCallCount
+      - moCallCount
+      - message
+    properties:
+      dateRange:
+        description: Date Range of voice Usage
+        type: string
+        example: April
+      reportHeader:
+        description: message of the call usage report according to the criteria
+        type: string
+        example: Monthly Voice Usage Report (Apr-2022)
+      srNumber:
+        description: The sequence number of data
+        type: integer
+        example: '1'
+      mtCallCount:
+        description: number of originated calls
+        type: string
+        example: '76'
+      moCallCount:
+        description: number of terminated calls
+        type: string
+        example: '45'
+      message:
+        description: message of the device existence
+        type: string
+        example: Device Exist
+  SIMDataUsageResponse:
+    type: object
+    required:
+      - totalCount
+      - offset
+      - limit
+      - valid
+      - responseBit
+      - object
+    properties:
+      totalCount:
+          type: integer
+          description: >-
+                  The total number of records to be returned.
+          example: 0
+      offset: 
+          type: integer
+          description: 'To specify starting row offset into the result set'
+          example: 1
+      limit: 
+          type: integer
+          description: 'The number of records returned in request.'  
+          example: 20
+      valid:
+        description: Validity
+        type: boolean
+        example: 'true'
+      responseBit:
+        description: Response bit
+        type: integer
+        example: '0'
+      object:
+        type: array
+        items:
+          $ref: '#/definitions/simdatausageobject'
+  simdatausageobject:
+    type: object
+    required:
+      - simAlias
+      - totalBytesInKb
+      - servedImsi
+    properties:
+      simAlias:
+        description: Alias of sim
+        type: string
+        example: test
+      totalBytesInKb:
+        description: total bytes in kb
+        type: string
+        example: '565'
+      servedImsi:
+        description: IMSI of the sim
+        type: string
+        example: '890083821654406'
+  deviceattachserviceplan:
+    type: object
+    required:
+      - servicePlanId
+      - imsi
+    properties:
+      comment:
+        description: Notes To be added
+        type: string
+        example: Assigning service plan to device
+      servicePlanId:
+        description: Service Plan Id of the next sim
+        type: string
+        example: '8900'
+      imsi:
+        description: IMSI of the sim
+        type: string
+        example: '890083821653421'
+  deviceattachserviceplanResponse:
+    type: object
+    required:
+      - message
+    properties:
+      message:
+        description: message
+        type: string
+        example: Api async process.
+  simsendsmssync:
+    type: object
+    required:
+      - imsi
+      - message
+    properties:
+      imsi:
+        description: IMSI of the sim
+        type: string
+        example: '890083821653421'
+      message:
+        description: The Text of the sms message
+        type: string
+        example: changed
+  simsendsmssyncResponse:
+    type: object
+    required:
+      - sentStatus
+      - message
+      - sentTime
+      - status
+    properties:
+      sentStatus:
+        description: Successfil if Air Control is able to submit to Airlinq SMSC Gateway
+        type: string
+        example: sent
+      message:
+        type: string
+      sentTime:
+        description: Message sent time and date
+        type: string
+        example: '2020-09-29 10:18:20'
+      status:
+        description: Sent status denoted by numeric value (0|1)
+        type: integer
+        example: 0
+  accountIdResponse:
+    type: object
+    required:
+      - name
+      - id
+      - state
+      - parentAccount
+      - production
+      - createDate
+    properties:
+      name:
+        description: The name of the account
+        type: string
+        example: AIR
+      id:
+        description: The unique ID of the account
+        type: integer
+        example: '1'
+      state:
+        description: state of account
+        type: string
+        example: PRODUCTION
+      parentAccount:
+        description: name of the parent account
+        type: string
+        example: parent account details
+      production:
+        $ref: '#/definitions/accountidResponsePRODUCTION'
+      createDate:
+        description: date of creation of the account
+        type: string
+        example: '1643963168000'
+  accountidResponsePRODUCTION:
+    type: object
+    required:
+      - description
+      - id
+    properties:
+      description:
+        description: Description of meaning of the Type
+        type: string
+        example: Globe
+      id:
+        description: id of type of the account
+        type: integer
+        example: '1'
+  devicecancellocationResponse:
+    type: object
+    required:
+      - message
+    properties:
+      message:
+        description: message
+        type: string
+        example: Cancel location api called successfully
+  devicelatestRegistrationResponse:
+    type: object
+    required:
+      - latchedNetwork
+      - latchedTime
+      - iccid
+      - networkType
+    properties:
+      latchedNetwork:
+        description: The Newtwor Operator Name or PMLN(MCCMNC)code
+        type: string
+        example: Network
+      latchedTime:
+        description: This is latest timestamp when SIM is connected to network
+        type: string
+        example: '12:23:34'
+      iccid:
+        description: ICCID of theSIMs
+        type: string
+        example: '8900838000000040000'
+      networkType:
+        description: Network type of the SIM
+        type: string
+        example: Data
+  simactivationTrendResponse:
+    type: object
+    required:
+      - totalCount
+      - object
+    properties:
+      totalCount:
+          type: integer
+          description: >-
+                  The total number of records to be returned.
+          example: 0
+      object:
+        type: array
+        items:
+          $ref: '#/definitions/simactivationTrendobject'
+  simactivationTrendobject:
+    type: object
+    required:
+      - date
+      - count
+    properties:
+      date:
+        description: 'Date of the record '
+        type: string
+        example: '2022-06-20'
+      count:
+        description: Number of SIM Activation
+        type: string
+        example: '0'
+  simdatasessioncountResponse:
+    type: object
+    required:
+      - totalResults
+      - object
+    properties:
+      totalResults:
+        description: Total count of results
+        type: integer
+        example: '20'
+      object:
+        type: array
+        items:
+          $ref: '#/definitions/simactivationTrendobject'
+  PingResponse:
+      title: Ping Response
+      description: 'ping repsonse for api healthcheck prupose'
+      type: object
+      properties:
+        environment: 
+          description: 'DEV, TEST, PROD, ...'
+          type: string
+        clientIp: 
+          description: "the requestor IP"
+          type: string
+        verb: 
+          description: "POST, GET, ..."
+          type: string
+        api: 
+          description: "api name: B2B-API" 
+          type: string
+        message: 
+          description: "pong"
+          type: string
+  simsaccountaccountidResponse:
+    type: object
+    required:
+      - totalCount
+      - offset
+      - limit
+      - simList
+    properties:
+      totalCount:
+          type: integer
+          description: >-
+                  The total number of records to be returned.
+          example: 436
+      offset: 
+          type: integer
+          description: 'To specify starting row offset into the result set'
+          example: 1
+      limit: 
+          type: integer
+          description: 'The number of records returned in request.'  
+          example: 20
+      simList:
+        type: array
+        items:
+          $ref: '#/definitions/simsaccountaccountidResponsesimList'
+  simsaccountaccountidResponsesimList:
+    type: object
+    required:
+      - iccid
+      - simAlias
+      - id
+      - imsi
+      - msisdn
+    properties:
+      iccid:
+        description: ICCID of the sim
+        type: string
+        example: '8900838000000654406'
+      simAlias:
+        description: Alias of the sim
+        type: string
+        example: test
+      id:
+        description: ID of the sim
+        type: integer
+        example: '442'
+      imsi:
+        description: IMSI of the sim
+        type: string
+        example: '890083821654406'
+      msisdn:
+        description: MSISDN of the sim
+        type: string
+        example: '5318654406'
+  devicedataUsageResponse:
+    required:
+      - id
+      - iccid
+      - imsi
+      - euiccid
+      - totalDownloadedInKb
+      - totalUploadedInKb
+      - totalUsageInKb
+    properties:
+      id:
+        description: id
+        type: integer
+        example: 0
+      iccid:
+        description: iccid of the account
+        type: string
+        example: '8900838000000654406'
+      euiccid: {}
+      totalDownloadedInKb:
+        description: total downloaded data in KB
+        type: integer
+        example: 0.0
+      totalUploadedInKb:
+        description: total uploaded data in KB
+        type: integer
+        example: 0.0
+      totalUsageInKb:
+        description: total data usage in KBs
+        type: integer
+        example: 0.0
+  useridResponse:
+    type: object
+    required:
+      - firstName
+      - lastName
+      - id
+      - userName
+      - email
+      - account
+    properties:
+      firstName:
+        description: The first name of the user
+        type: string
+        example: gtadmin
+      lastName:
+        description: The last name of the user
+        type: string
+        example: admin
+      id:
+        description: The ID of the API User
+        type: number
+        example: '1'
+      userName:
+        description: The name of the user
+        type: string
+        example: gtadmin
+      email:
+        description: The Email ID of the user
+        type: string
+        example: gtadmin@globetouch.com
+      account:
+        $ref: '#/definitions/useridResponseaccount'
+  useridResponseaccount: 
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        description: The account ID associated with he account
+        type: integer
+        example: '1'
+  devicesessionhistoryResponse:
+    type: object
+    required:
+      - upBytes
+      - servingNodePlmnId
+      - recordType
+      - chargingId
+      - totalBytesInKb
+      - servedImeiSV
+      - servedImsi
+      - apnId
+      - totalBytes
+      - startTime
+      - stopTime
+    properties:
+      apnId:
+        description: Access point name of ID
+        type: string
+        example: onstarsa
+      upBytes:
+        description: up bytes
+        type: string
+        example: '78'
+      servingNodePlmnId:
+        description: servingNodePlmnId
+        type: string
+        example: MCC - 404 | MNC - 95
+      recordType:
+        description: Value denoting the Typeof record
+        type: integer
+        example: '4'
+      chargingId:
+        description: charging ID
+        type: string
+        example: '113308565'
+      totalBytes:
+        description: total bytes
+        type: string
+        example: '95'
+      startTime:
+        description: start time
+        type: string
+        example: '2022-04-20 22:00:00'
+      stopTime: {}
+      totalBytesInKb:
+        description: total bytes in kb
+        type: string
+        example: '789'
+      servedImeiSV:
+        description: servedImeiSV of sim
+        type: string
+        example: '3582580904063034'
+      servedImsi:
+        description: IMSI
+        type: string
+        example: '890083821654406'
+  simsmsusageResponse:
+    type: object
+    required:
+      - dateRange
+      - moSmsCount
+      - mtSmsCount
+      - reportHeader
+      - moSmsFailerCount
+      - mtSmsSucessCount
+      - srNumber
+      - mtSmsFailerCount
+      - message
+      - moSmsSucessCount
+    properties:
+      dateRange:
+        description: date range for sim activation
+        type: string
+        example: April
+      moSmsCount:
+        description: mo sms count
+        type: string
+        example: '10'
+      mtSmsCount:
+        description: mt sms count
+        type: string
+        example: '32'
+      reportHeader:
+        description: report header for sim
+        type: string
+        example: Monthly SMS Usage Report (Apr-2022)
+      moSmsFailerCount:
+        description: mo sms failer count
+        type: string
+        example: '23'
+      mtSmsSucessCount:
+        description: mt sms success count
+        type: string
+        example: '56'
+      srNumber:
+        description: sr number for user
+        type: string
+        example: '1'
+      mtSmsFailerCount:
+        description: mt sms failer count
+        type: string
+        example: '184'
+      message:
+        description: message for device existing
+        type: string
+        example: Device Exist
+      moSmsSucessCount:
+        description: m sms success count
+        type: string
+        example: '51'
+  devicechangestate:
+    type: object
+    required:
+      - imsi
+      - newState
+    properties:
+      reason:
+        description: Reason for the sim state change
+        type: string
+        example: Test
+      imsi:
+        type: array
+        items:
+          type: string
+        example:
+          - '890083821653421'
+      servicePlanId:
+        description: The service plan ID(DB)
+        type: string
+        example: '1'
+      devicePlanId:
+        description: The device plan ID(DB)
+        type: string
+        example: '1'
+      newState:
+        description: The new state of the device which got changed from the current state
+        type: string
+        example: Activated
+  devicechangestateResponse:
+    type: object
+    required:
+      - successEntries
+      - asyncEntries
+      - failedEntries
+    properties:
+      successEntries:
+        type: array
+        items:
+          type: string
+        example:
+          - '890083821654406'
+      asyncEntries:
+        type: array
+        items:
+          type: string
+        example:
+          - '890083821654406'
+      failedEntries:
+        type: array
+        items:
+          type: string
+        example:
+          - '890083821654406'
+  getsimsResponse:
+    type: object
+    required:
+      - total
+      - devices
+    properties:
+      total:
+        description: Total number of sims available
+        type: integer
+        example: '1'
+      devices:
+        type: array
+        items:
+          $ref: '#/definitions/getsimsResponsedevices'
+  getsimsResponsedevices:
+    type: object
+    required:
+      - ratePlan
+      - mnoAccount
+      - imsi
+      - iccid
+      - dataUsageLimit
+      - smsUsageLimit
+      - id
+      - state
+      - msisdn
+      - dataUsage
+      - apn
+      - customParam2
+      - customParam3
+      - euiccId
+      - customParam1
+      - sessionStartTime
+      - ipAddress
+      - inSession
+      - voiceUsageLimit
+      - customParam4
+      - customParam5
+      - subscriberLastName
+      - subscriberDob
+      - servicePlan
+      - billingCycle
+      - subscriberName
+      - entAccount
+      - alternateContactNumber
+      - locationCoverage
+      - activationDate
+      - subscriberGender
+      - subscriberEmail
+      - nextRatePlan
+    properties:
+      ratePlan:
+        description: rate plan for sim
+        type: string
+        example: rate plan details
+      mnoAccount:
+        $ref: '#/definitions/getsimsResponsedevicesmnoAccount'
+      imsi:
+        description: imsi for sim
+        type: string
+        example: '890083841304301'
+      iccid:
+        description: iccid for sim
+        type: string
+        example: '890083800000004222'
+      dataUsageLimit:
+        description: data usage limit
+        type: integer
+        example: '0'
+      smsUsageLimit:
+        description: sms usage limit
+        type: integer
+        example: '0'
+      id:
+        description: id for sim
+        type: integer
+        example: '0'
+      state:
+        description: ' statefor sim'
+        type: string
+        example: warm
+      msisdn:
+        description: msisdn for sim
+        type: string
+        example: '5318384301'
+      dataUsage:
+        description: data usage
+        type: integer
+        example: '0'
+      apn:
+        description: access point name
+        type: string
+        example: test_static09
+      customParam2:
+        description: custom param
+        type: string
+        example: any custom param
+      customParam3:
+        description: custom param
+        type: string
+        example: any custom param
+      euiccId:
+        description: euiccid for sim
+        type: string
+        example: '89008380000006544061890083821654406'
+      customParam1:
+        description: custom param
+        type: string
+        example: any custom param
+      sessionStartTime:
+        description: session start time
+        type: string
+        example: '12:00:00'
+      ipAddress:
+        description: ip address of sim
+        type: string
+        example: 000.000.000.000
+      inSession:
+        description: in session
+        type: string
+        example: 'false'
+      voiceUsageLimit:
+        description: voice usage limit
+        type: integer
+        example: '0'
+      customParam4:
+        description: custom param
+        type: string
+        example: any custom param
+      customParam5:
+        description: custom param
+        type: string
+        example: any custom param
+      subscriberLastName:
+        description: subsrciber last name
+        type: string
+        example: segal
+      subscriberDob:
+        description: subscriber dob
+        type: string
+        example: mon aug 05 2022
+      servicePlan:
+        description: service plan for sim
+        type: string
+        example: service plan details
+      billingCycle:
+        description: billing cycle for sim
+        type: integer
+        example: '1'
+      subscriberName:
+        description: subscriber name
+        type: string
+        example: rick
+      entAccount:
+        $ref: '#/definitions/getsimsResponsedevicesentAccount'
+      alternateContactNumber:
+        description: alternate contact number
+        type: string
+        example: '9876543211'
+      locationCoverage:
+        description: locaion coverage
+        type: string
+        example: location coverage details
+      activationDate:
+        description: activation date for sim
+        type: string
+        example: 25-04-2022 12:00:00
+      subscriberGender:
+        description: subscriber gender
+        type: string
+        example: male
+      subscriberEmail:
+        description: subscriber email
+        type: string
+        example: hello@gmail.com
+      nextRatePlan:
+        description: next rate plan for sim
+        type: string
+        example: next rate plan detail
+  getsimsResponsedevicesmnoAccount:
+    type: object
+    required:
+      - name
+      - id
+    properties:
+      name:
+        description: name for user
+        type: string
+        example: phase2_telcel
+      id:
+        description: id for sim
+        type: integer
+        example: '224'
+  getsimsResponsedevicesentAccount:
+    type: object
+    required:
+      - name
+      - id
+    properties:
+      name:
+        description: name for user
+        type: string
+        example: phase2_volvo
+      id:
+        description: id for sim
+        type: integer
+        example: '224'
+  simdownlinkusageResponse:
+    type: object
+    required:
+      - totalResults
+      - object
+    properties:
+      totalResults:
+        description: total count of results
+        type: integer
+        example: '30'
+      object:
+        type: array
+        items:
+          $ref: '#/definitions/simdownlinkusageResponseobject'
+  simdownlinkusageResponseobject:
+    type: object
+    required:
+      - date
+      - totalBytes(MB)
+    properties:
+      date:
+        description: date of sim
+        type: string
+        example: '2022-06-20'
+      totalBytes(MB):
+        description: total bytes of data
+        type: integer
+        example: '0'        
+  updatesimalias:
+    type: object
+    required:
+      - ALIAS
+      - IMSI
+    properties:
+      ALIAS:
+        description: Alias of the sim
+        type: string
+        example: Testing SIM
+      IMSI:
+        description: IMSI of the sim
+        type: string
+        example: '990072821305990'
+  updatesimaliasResponse:
+    type: object
+    required:
+      - Result
+    properties:
+      Result:
+        description: message for sim
+        type: string
+        example: Update Success
+  getusersResponse:
+    type: object
+    required:
+      - total
+      - noOfResults
+      - users
+    properties:
+      total:
+        description: total count
+        type: integer
+        example: '62'
+      noOfResults:
+        description: nimber of results
+        type: integer
+        example: '20'
+      users:
+        type: array
+        items:
+          $ref: '#/definitions/usersResponseusers'
+  usersResponseusers:
+    type: object
+    required:
+      - firstName
+      - lastName
+      - id
+      - userName
+      - email
+      - account
+    properties:
+      firstName:
+        description: user first name
+        type: string
+        example: gtadmin
+      lastName:
+        description: user last name
+        type: string
+        example: admin
+      id:
+        description: id for sim
+        type: integer
+        example: '1'
+      userName:
+        description: username for account
+        type: string
+        example: gtadmin
+      email:
+        description: emaail for account
+        type: string
+        example: gtadmin@globetouch.com
+      account:
+        $ref: '#/definitions/usersResponseusersaccount'
+  usersResponseusersaccount:
+    type: object
+    required:
+      - id
+    properties:
+      id:
+        description: isd for sim
+        type: integer
+        example: '1'
+  devicesessioninfoResponse:
+    type: object
+    required:
+      - iccid
+      - euiccId
+      - sessionStartTime
+      - inSession
+      - location
+      - id
+      - imsi
+      - apn
+      - network
+    properties:
+      iccid:
+        description: iccid for sim
+        type: string
+        example: '8900838000000654406'
+      euiccId:
+        description: euiccid for sim
+        type: string
+        example: '89008380000006544061890083821654406'
+      sessionStartTime:
+        description: session start time
+        type: string
+        example: '12:30:00'
+      inSession:
+        description: 'in session '
+        type: boolean
+        example: 'false'
+      location:
+        description: location for sim
+        type: string
+        example: jaipur
+      id:
+        description: id for sim
+        type: string
+        example: '442'
+      imsi:
+        description: imsi for sim
+        type: string
+        example: '890083821654406'
+      apn:
+        description: access point name
+        type: string
+        example: test_static09
+      network:
+        description: network for sim
+        type: string
+        example: Telstra (505-01)
+  vehicleidentificationnumber:
+    type: object
+    required:
+      - iccid
+      - VIN
+    properties:
+      iccid: {}
+      VIN: {}
+  vehicleidentificationnumberResponse:
+    type: object
+    required:
+      - identificationCode
+      - message
+    properties:
+      identificationCode:
+        description: ' identification code'
+        type: string
+        example: '100103'
+      message:
+        description: Vin on asset set successfully.
+        type: string
+        example: Vin on asset set successfully.
+  getsimstateResponse:
+    type: object
+    required:
+      - iccid
+      - imsi
+      - state
+    properties:
+      iccid:
+        description: iccid of sim
+        type: string
+        example: '89008380000006544065'
+      imsi:
+        description: imsi
+        type: string
+        example: '890083821654406'
+      state:
+        description: state of sim
+        type: string
+        example: Warm
+  simbundledetails:
+    type: object
+    required:
+      - imsis
+    properties:
+      imsis:
+        description: IMSIs of the sim
+        type: string
+        example: '890083821312283'
+  simbundledetailsResponse:
+    type: array
+    items:
+      $ref: '#/definitions/simbundledetailsResponseobject'
+  simbundledetailsResponseobject:
+    type: object
+    required:
+      - voice
+      - data
+      - sms
+      - imsi
+    properties:
+      voice:
+        description: voice for sim
+        type: string
+        example: '89'
+      data:
+        description: data for sim
+        type: string
+        example: '55'
+      sms:
+        description: sms for sim
+        type: string
+        example: '45'
+      imsi:
+        description: imsi id
+        type: string
+        example: '890083821654406'
+  simuplinkusageResponse:
+    type: object
+    required:
+      - totalResults
+      - object
+    properties:
+      totalResults:
+        description: total results
+        type: integer
+        example: '30'
+      object:
+        type: array
+        items:
+          $ref: '#/definitions/simuplinkusageResponseobject'
+  simuplinkusageResponseobject:
+    type: object
+    required:
+      - date
+      - totalBytes(MB)
+    properties:
+      date:
+        description: date
+        type: string
+        example: '2022-06-20'
+      totalBytes(MB):
+        description: total bytes in mb
+        type: integer
+        example: '0'
+  simauditv2iccidResponse:
+    type: object
+    required:
+      - totalCount
+      - offset
+      - limit
+      - simAuditHistory
+    properties:
+      totalCount:
+          type: integer
+          description: >-
+                  The total number of records to be returned.
+          example: 0
+      offset: 
+          type: integer
+          description: 'To specify starting row offset into the result set'
+          example: 1
+      limit: 
+          type: integer
+          description: 'The number of records returned in request.'  
+          example: 20
+      simAuditHistory:
+        type: array
+        items:
+          $ref: '#/definitions/simauditv2iccidResponsesimAuditHistory'
+  simauditv2iccidResponsesimAuditHistory:
+    type: object
+    required:
+      - newValue
+      - module
+      - errorMessage
+      - errorCode
+      - userName
+      - message
+      - result
+      - accountId
+      - subModule
+      - id
+      - oldValue
+      - event
+      - extendedAuditLog
+      - createDate
+      - stationId
+    properties:
+      newValue:
+        description: new value enter
+        type: string
+        example: '12'
+      module:
+        description: module name
+        type: string
+        example: Admin
+      errorMessage:
+        description: Error occurred while parsing the request
+        type: string
+        example: error occured
+      errorCode:
+        description: error code
+        type: integer
+        example: '4018'
+      userName:
+        description: Admin name
+        type: string
+        example: yash
+      message:
+        description: 'iop message show '
+        type: string
+        example: IoTSMP Stopped
+      result:
+        description: result message
+        type: string
+        example: Success
+      accountId:
+        description: account id
+        type: integer
+        example: '2'
+      subModule:
+        description: sub modules
+        type: string
+        example: Account
+      id:
+        description: id of sim
+        type: integer
+        example: '0'
+      oldValue:
+        description: old value enter
+        type: string
+        example: '123'
+      event:
+        description: event occured
+        type: string
+        example: Stopped
+      extendedAuditLog:
+        $ref: '#/definitions/simauditv2iccidResponsesimAuditHistoryextendedAuditLog'
+      createDate:
+        description: creation date
+        type: integer
+        example: '1643963168000'
+      stationId:
+        description: station id
+        type: string
+        example: '12345'
+  simauditv2iccidResponsesimAuditHistoryextendedAuditLog:
+    type: object
+    required:
+      - comments
+      - assetId
+      - errorMessage
+      - errorCode
+      - id
+      - attribute
+      - createDate
+    properties:
+      comments:
+        description: comments message
+        type: string
+        example: testprovi1
+      assetId:
+        description: asset id
+        type: integer
+        example: '2'
+      errorMessage:
+        description: Error occurred while parsing the request
+        type: string
+        example: error occured
+      errorCode:
+        description: error code
+        type: integer
+        example: '4018'
+      id:
+        description: id
+        type: integer
+        example: '0'
+      attribute:
+        description: attribute
+        type: string
+        example: DATA_PLAN
+      createDate:
+        description: create date
+        type: integer
+        example: '1643963168000'
+  sessionwisedatausageResponse:
+    type: object
+    required:
+      - totalCount
+      - offset
+      - limit
+      - object
+    properties:
+      totalCount:
+          type: integer
+          description: >-
+                  The total number of records to be returned.
+          example: 0
+      offset: 
+          type: integer
+          description: 'To specify starting row offset into the result set'
+          example: 1
+      limit: 
+          type: integer
+          description: 'The number of records returned in request.'  
+          example: 20
+      object:
+        type: array
+        items:
+          $ref: '#/definitions/sessionwisedatausageResponseobject'
+  sessionwisedatausageResponseobject:
+    type: object
+    required:
+      - stopDateTime
+      - chargingId
+      - downBytes
+      - totalBytesInKb
+      - ServedImeiSv
+      - servedPdppdnAddressIpv4
+      - servedImsi
+      - ueIp
+      - apnId
+      - upBytes
+      - startDateTime
+      - servedPdppdnAddressIpv6
+    properties:
+      stopDateTime:
+        description: stop date time
+        type: string
+        example: 12:02:2022 12:30:00
+      chargingId:
+        description: charging id
+        type: string
+        example: '123'
+      downBytes:
+        description: down bytes
+        type: string
+        example: '123'
+      totalBytesInKb:
+        description: total bytes in kb
+        type: string
+        example: '123'
+      ServedImeiSv:
+        description: served imei sv
+        type: string
+        example: '123456789'
+      servedPdppdnAddressIpv4:
+        description: ' ip address v4'
+        type: string
+        example: '192:268:0:1'
+      servedImsi:
+        description: IMSI of the sim
+        type: string
+        example: '890083821654406'
+      ueIp:
+        description: ue ip address
+        type: string
+        example: '192:268:0:1'
+      apnId:
+        description: ' apn id'
+        type: string
+        example: '123'
+      upBytes:
+        description: down bytes
+        type: string
+        example: '123'
+      startDateTime:
+        description: starting date time
+        type: string
+        example: 12:02:2022 12:30:00
+      servedPdppdnAddressIpv6:
+        description: ' ip address v6'
+        type: string
+        example: '192:268:0:1'
+  errorResponse:
+    description: Error response syntax
+    properties:
+      httpStatusCode:
+        type: number
+        description: Standard HTTP status code
+        example: 200
+      error:
+        type: object
+        description: Error details
+        properties:
+          code:
+            type: string
+            description: STC error code
+            example: APP.100.0312
+          reason:
+            type: string
+            description: STC error reason
+            example: No data found
+          moreInfoHref:
+            type: string
+            description: Link to STC developer portal for more information about the error. If such link is not available, the value would be an empty string.
+            example: 'https://Internal.api.stc.com.sa/web/docs/errorCodes/APP_FUNCTIONAL_ERROR'
+responses:
+  badRequest:
+    description: |
+      Bad request due to malformed request, missing SSL certificate, etc.
+    headers:
+      X-STC-API-ApiMsgRef:
+        type: string
+        description: |
+          A unique identifier for the API call. This header is optional. When present, include its value in your communication with the API Team for troubleshooting.
+          
+          Example Value: ```0b969c6a-d28a-4546-bd79-561e682319f8```
+      X-STC-API-ClientMsgRef:
+        type: string
+        description: |
+          A client message reference value that will be sent back as part of the response header. The parameter can be used by consumers to maintain state, troubleshooting, etc. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+      X-STC-API-ClientCorrelationRef:
+        type: string
+        description: |
+          A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+    schema:
+      $ref: '#/definitions/errorResponse'
+    examples:
+      application/json: |-
+        {
+          "httpStatusCode": 400,
+          "error": {
+            "code": "API.400.1",
+            "reason": "Required parameter(s) are missing",
+            "moreInfoHref":  "https://developers.stc.com.sa/docs/errorCodes/API.400.1"
+          }
+        }
+  unauthorized:
+    description: |
+      Authentication error due to missing or expired credentials.
+    headers:
+      X-STC-API-ApiMsgRef:
+        type: string
+        description: |
+          A unique identifier for the API call. This header is optional. When present, include its value in your communication with the API Team for troubleshooting.
+          
+          Example Value: ```0b969c6a-d28a-4546-bd79-561e682319f8```
+      X-STC-API-ClientMsgRef:
+        type: string
+        description: |
+          A client message reference value that will be sent back as part of the response header. The parameter can be used by consumers to maintain state, troubleshooting, etc. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+      X-STC-API-ClientCorrelationRef:
+        type: string
+        description: |
+          A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+    schema:
+      $ref: '#/definitions/errorResponse'
+    examples:
+      application/json: |-
+        {
+          "httpStatusCode": 401,
+          "error": {
+            "code": "API.401.2",
+            "reason": "Invalid credentials",
+            "moreInfoHref":  "https://developers.stc.com.sa/docs/errorCodes/API.401.2"
+          }
+        }
+  forbidden:
+    description: |
+      Authorization error. Credentials are valid but have insufficient privileges or scope.
+    headers:
+      X-STC-API-ApiMsgRef:
+        type: string
+        description: |
+          A unique identifier for the API call. This header is optional. When present, include its value in your communication with the API Team for troubleshooting.
+          
+          Example Value: ```0b969c6a-d28a-4546-bd79-561e682319f8```
+      X-STC-API-ClientMsgRef:
+        type: string
+        description: |
+          A client message reference value that will be sent back as part of the response header. The parameter can be used by consumers to maintain state, troubleshooting, etc. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+      X-STC-API-ClientCorrelationRef:
+        type: string
+        description: |
+          A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+    schema:
+      $ref: '#/definitions/errorResponse'
+    examples:
+      application/json: |-
+        {
+          "httpStatusCode": 403,
+          "error": {
+            "code": "API.403.1",
+            "reason": "Insufficient privileges or scope",
+            "moreInfoHref":  "https://developers.stc.com.sa/docs/errorCodes/API.403.1"
+          }
+        }
+  resourceNotFound:
+    description: |
+      The requested resource/verb combination could not be found.
+    headers:
+      X-STC-API-ClientMsgRef:
+        type: string
+        description: |
+          A client message reference value that will be sent back as part of the response header. The parameter can be used by consumers to maintain state, troubleshooting, etc. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+      X-STC-API-ClientCorrelationRef:
+        type: string
+        description: |
+          A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+    schema:
+      $ref: '#/definitions/errorResponse'
+    examples:
+      application/json: |-
+        {
+          "httpStatusCode": 404,
+          "error": {
+            "code": "API.404.1",
+            "reason": "The requested resource cannot be found.",
+            "moreInfoHref":  "https://developers.stc.com.sa/docs/errorCodes/API.404.1"
+          }
+        }
+  tooManyRequests:
+    description: |
+      Limits on API usage have been reached. Check your API traffic through the STC Developer Portal. Contact the API Team.
+    headers:
+      X-STC-API-ApiMsgRef:
+        type: string
+        description: |
+          A unique identifier for the API call. This header is optional. When present, include its value in your communication with the API Team for troubleshooting.
+          
+          Example Value: ```0b969c6a-d28a-4546-bd79-561e682319f8```
+      X-STC-API-ClientMsgRef:
+        type: string
+        description: |
+          A client message reference value that will be sent back as part of the response header. The parameter can be used by consumers to maintain state, troubleshooting, etc. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+      X-STC-API-ClientCorrelationRef:
+        type: string
+        description: |
+          A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+    schema:
+      $ref: '#/definitions/errorResponse'
+    examples:
+      application/json: |-
+        {
+          "httpStatusCode": 429,
+          "error": {
+            "code": "API.429.1",
+            "reason": "Limits on API usage have been reached.",
+            "moreInfoHref":  "https://developers.stc.com.sa/docs/errorCodes/API.429.1"
+          }
+        }
+  internalServerError:
+    description: |
+      Internal error raised by the API or its downstream system(s). Check again later or contact the API Team.
+    headers:
+      X-STC-API-ApiMsgRef:
+        type: string
+        description: |
+          A unique identifier for the API call. This header is optional. When present, include its value in your communication with the API Team for troubleshooting.
+          
+          Example Value: ```0b969c6a-d28a-4546-bd79-561e682319f8```
+      X-STC-API-ClientMsgRef:
+        type: string
+        description: |
+          A client message reference value that will be sent back as part of the response header. The parameter can be used by consumers to maintain state, troubleshooting, etc. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+      X-STC-API-ClientCorrelationRef:
+        type: string
+        description: |
+          A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+    schema:
+      $ref: '#/definitions/errorResponse'
+    examples:
+      application/json: |-
+        {
+          "httpStatusCode": 500,
+          "error": {
+            "code": "APP.500.1",
+            "reason": "Internal error. Try again later or contact the API Team.",
+            "moreInfoHref":  "https://developers.stc.com.sa/docs/errorCodes/APP.500.1"
+          }
+        }
+  serviceUnavailable:
+    description: |
+      Service unavailable due to scheduled maintenance. Contact the API for more on API availability.
+    headers:
+      X-STC-API-ApiMsgRef:
+        type: string
+        description: |
+          A unique identifier for the API call. This header is optional. When present, include its value in your communication with the API Team for troubleshooting.
+          
+          Example Value: ```0b969c6a-d28a-4546-bd79-561e682319f8```
+      X-STC-API-ClientMsgRef:
+        type: string
+        description: |
+          A client message reference value that will be sent back as part of the response header. The parameter can be used by consumers to maintain state, troubleshooting, etc. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e682318a3```
+      X-STC-API-ClientCorrelationRef:
+        type: string
+        description: |
+          A client reference value that will be sent back as part of the response header. The parameter can be used by consumers for correlation purposes. This is an optional header.
+          
+          Example Value: ```8a969c6a-c28a-t546-gd79-961e68231a4```
+    schema:
+      $ref: '#/definitions/errorResponse'
+    examples:
+      application/json: |-
+        {
+          "httpStatusCode": 503,
+          "error": {
+            "code": "APP.503.1",
+            "reason": "The service is currently unavailable. Try again later.",
+            "moreInfoHref":  "https://developers.stc.com.sa/docs/errorCodes/APP.503.1"
+          }
+        }
